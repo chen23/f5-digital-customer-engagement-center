@@ -64,6 +64,10 @@ variable "assisted" {
   description = "Use Assisted deployment for Volterra TGW Site"
   default     = false
 }
+variable "waitForAssisted" {
+  description = "wait for Assisted deployment for Volterra TGW Site (set to true to defer creation of resources)"
+  default     = false
+}
 variable "volterraUniquePrefix" {
   description = "Unique prefix to use for System resources in Volterra tenant"
   default     = "acme"

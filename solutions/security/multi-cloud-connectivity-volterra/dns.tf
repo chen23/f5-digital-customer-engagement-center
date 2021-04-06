@@ -1,4 +1,5 @@
 data "aws_instances" "VolterraBu1Instances" {
+  count            = var.waitForAssisted ? 0 : 1
   instance_tags = {
     "ves.io/site_name" = volterra_aws_tgw_site.acmeBu1.name
   }
@@ -8,6 +9,7 @@ data "aws_instances" "VolterraBu1Instances" {
 }
 
 data "aws_instances" "VolterraBu2Instances" {
+  count            = var.waitForAssisted ? 0 : 1
   instance_tags = {
     "ves.io/site_name" = volterra_aws_tgw_site.acmeBu2.name
   }
@@ -17,6 +19,7 @@ data "aws_instances" "VolterraBu2Instances" {
 }
 
 data "aws_instances" "VolterraAcmeInstances" {
+  count            = var.waitForAssisted ? 0 : 1
   instance_tags = {
     "ves.io/site_name" = volterra_aws_tgw_site.acmeAcme.name
   }
@@ -26,9 +29,10 @@ data "aws_instances" "VolterraAcmeInstances" {
 }
 
 data "aws_network_interface" "bu1" {
+  count            = var.waitForAssisted ? 0 : 1
   filter {
     name   = "attachment.instance-id"
-    values = [data.aws_instances.VolterraBu1Instances.ids[0]]
+    values = [data.aws_instances.VolterraBu1Instances[0].ids[0]]
   }
   filter {
     name   = "tag:ves.io/interface-type"
@@ -37,9 +41,10 @@ data "aws_network_interface" "bu1" {
 }
 
 data "aws_network_interface" "bu2" {
+  count            = var.waitForAssisted ? 0 : 1
   filter {
     name   = "attachment.instance-id"
-    values = [data.aws_instances.VolterraBu2Instances.ids[0]]
+    values = [data.aws_instances.VolterraBu2Instances[0].ids[0]]
   }
   filter {
     name   = "tag:ves.io/interface-type"
@@ -48,9 +53,10 @@ data "aws_network_interface" "bu2" {
 }
 
 data "aws_network_interface" "acme" {
+  count            = var.waitForAssisted ? 0 : 1
   filter {
     name   = "attachment.instance-id"
-    values = [data.aws_instances.VolterraBu1Instances.ids[0]]
+    values = [data.aws_instances.VolterraBu1Instances[0].ids[0]]
   }
   filter {
     name   = "tag:ves.io/interface-type"
@@ -68,6 +74,7 @@ data "aws_network_interface" "acme" {
 #}
 
 resource "aws_route53_resolver_endpoint" "resolverBu1" {
+  count            = var.waitForAssisted ? 0 : 1
   name      = "resolverBu1"
   direction = "OUTBOUND"
 
@@ -89,13 +96,14 @@ resource "aws_route53_resolver_endpoint" "resolverBu1" {
 
 
 resource "aws_route53_resolver_rule" "route53RuleBu1" {
+  count            = var.waitForAssisted ? 0 : 1
   name                 = "route53RuleBu1-${random_id.buildSuffix.hex}"
   domain_name          = "shared.acme.com"
   rule_type            = "FORWARD"
-  resolver_endpoint_id = aws_route53_resolver_endpoint.resolverBu1.id
+  resolver_endpoint_id = aws_route53_resolver_endpoint.resolverBu1[0].id
 
   target_ip {
-    ip = data.aws_network_interface.bu1.private_ip
+    ip = data.aws_network_interface.bu1[0].private_ip
   }
 
   tags = {
@@ -105,7 +113,8 @@ resource "aws_route53_resolver_rule" "route53RuleBu1" {
 }
 
 resource "aws_route53_resolver_rule_association" "ruleAssociationBu1" {
-  resolver_rule_id = aws_route53_resolver_rule.route53RuleBu1.id
+  count            = var.waitForAssisted ? 0 : 1
+  resolver_rule_id = aws_route53_resolver_rule.route53RuleBu1[0].id
   vpc_id           = module.vpcBu1.vpc_id
 }
 
@@ -113,6 +122,7 @@ resource "aws_route53_resolver_rule_association" "ruleAssociationBu1" {
 #bu2 resolver
 
 resource "aws_route53_resolver_endpoint" "resolverBu2" {
+  count            = var.waitForAssisted ? 0 : 1
   name      = "resolverBu2"
   direction = "OUTBOUND"
 
@@ -134,13 +144,14 @@ resource "aws_route53_resolver_endpoint" "resolverBu2" {
 
 
 resource "aws_route53_resolver_rule" "route53RuleBu2" {
+  count            = var.waitForAssisted ? 0 : 1
   name                 = "route53RuleBu2-${random_id.buildSuffix.hex}"
   domain_name          = "shared.acme.com"
   rule_type            = "FORWARD"
-  resolver_endpoint_id = aws_route53_resolver_endpoint.resolverBu2.id
+  resolver_endpoint_id = aws_route53_resolver_endpoint.resolverBu2[0].id
 
   target_ip {
-    ip = data.aws_network_interface.bu2.private_ip
+    ip = data.aws_network_interface.bu2[0].private_ip
   }
 
   tags = {
@@ -150,13 +161,15 @@ resource "aws_route53_resolver_rule" "route53RuleBu2" {
 }
 
 resource "aws_route53_resolver_rule_association" "ruleAssociationBu2" {
-  resolver_rule_id = aws_route53_resolver_rule.route53RuleBu2.id
+  count            = var.waitForAssisted ? 0 : 1
+  resolver_rule_id = aws_route53_resolver_rule.route53RuleBu2[0].id
   vpc_id           = module.vpcBu2.vpc_id
 }
 
 #acme resolver
 
 resource "aws_route53_resolver_endpoint" "resolverAcme" {
+  count            = var.waitForAssisted ? 0 : 1
   name      = "resolverAcme"
   direction = "OUTBOUND"
 
@@ -178,13 +191,14 @@ resource "aws_route53_resolver_endpoint" "resolverAcme" {
 
 
 resource "aws_route53_resolver_rule" "route53RuleAcme" {
+  count            = var.waitForAssisted ? 0 : 1
   name                 = "route53RuleAcme-${random_id.buildSuffix.hex}"
   domain_name          = "shared.acme.com"
   rule_type            = "FORWARD"
-  resolver_endpoint_id = aws_route53_resolver_endpoint.resolverAcme.id
+  resolver_endpoint_id = aws_route53_resolver_endpoint.resolverAcme[0].id
 
   target_ip {
-    ip = data.aws_network_interface.acme.private_ip
+    ip = data.aws_network_interface.acme[0].private_ip
   }
 
   tags = {
@@ -194,6 +208,7 @@ resource "aws_route53_resolver_rule" "route53RuleAcme" {
 }
 
 resource "aws_route53_resolver_rule_association" "ruleAssociationAcme" {
-  resolver_rule_id = aws_route53_resolver_rule.route53RuleAcme.id
+  count            = var.waitForAssisted ? 0 : 1
+  resolver_rule_id = aws_route53_resolver_rule.route53RuleAcme[0].id
   vpc_id           = module.vpcAcme.vpc_id
 }
